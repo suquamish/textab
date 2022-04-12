@@ -1,0 +1,76 @@
+<html>
+<head><meta charset="utf-8"></meta></head>
+<body>
+<script
+  src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+  integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
+  crossorigin="anonymous"
+></script>
+<form>
+<textarea autofocus spellcheck="false" style="font-family:monospace;width:99%;height:99%;overflow:hidden;resize:none;border:none;"></textarea>
+</form>
+<script>
+
+$("textarea").keydown(function(e) {
+  // get caret position/selection
+  var start = this.selectionStart;
+  var end = this.selectionEnd;
+
+  var $this = $(this);
+  var value = "" + $this.val();
+
+  var tlen = 2;
+  var nllen = 1;
+
+  var leadingSpaces = function(array) {
+    if (array == null) return 0;
+    if (array.length === 0) return 0;
+    return Math.max(array[array.length - 1].search(/\S|$/), 0);
+  };
+
+  if(e.keyCode === 9) { // tab was pressed
+    if(event.shiftKey) { // shift was press, so this is a back tab
+      // set textarea to: text before caret - one tab-to-spaces + text after carret
+      // (lolwut?!)
+      var lines = value.substring(0, start).split("\n");
+      var untabbedToSpaces = Math.max(leadingSpaces(lines) - tlen, 0);
+      var currentLinePos = Math.max(lines.length - 1, 0);
+      var currentLine = lines[currentLinePos].trim();
+      var beginning = lines.slice(0, Math.max(currentLinePos, 0)).join("\n");
+
+      $this.val(beginning +
+        "\n" +
+        ' '.repeat(untabbedToSpaces) +
+        currentLine +
+        value.substring(end));
+
+      this.selectionStart = this.selectionEnd = Math.max(start - tlen, 0);
+    } else {
+      // set textarea value to: text before caret + tab-to-spaces + text after caret
+      $this.val(value.substring(0, start) +
+        ' '.repeat(tlen) +
+        value.substring(end));
+
+      // put caret at right position again (add one for the tab)
+      this.selectionStart = this.selectionEnd = start + tlen;
+    }
+
+    // prevent the focus lose
+    e.preventDefault();
+  }
+
+  if(e.keyCode === 13) { // enter was pressed
+    var lines = value.substring(0, start).split("\n");
+    $this.val(value.substring(0, start) +
+    "\n" +
+    ' '.repeat(leadingSpaces(lines)) +
+    value.substring(end));
+
+    this.selectionStart = this.selectionEnd = start + nllen + leadingSpaces(lines)
+
+    e.preventDefault(); 
+  }
+});
+</script>
+</body>
+</html>
