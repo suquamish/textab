@@ -1,4 +1,4 @@
-# textab
+# texttab
 Simple text editor for the browser
 
 ---
